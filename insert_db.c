@@ -1,19 +1,22 @@
+#include<stdio.h>
 #include<unistd.h>
 #include<fcntl.h>
 #include<string.h>
 typedef struct data
 {
-	char username[50],password[50];
+	char username[50],password[50],status[50];
 }data;
 int main(void)
 {
 	int fd;
 	fd=open("db",O_WRONLY|O_APPEND);
 	data a;
-	write(1,"enter your details\n",20);
-	write(1,"enter your username\n",21);
-	read(0,a.username,50);
-	write(1,"enter your password\n",21);
-	read(0,a.password,50);
+	printf("welcome\n");
+	printf("enter your username\n");
+	scanf("%s",a.username);
+	printf("enter your password\n");
+	scanf("%s",a.password);
+	printf("%s","normal account, joint account or admin ?");
+	scanf("%s",a.status);
 	write(fd,&a,sizeof(a));
 }
