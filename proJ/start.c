@@ -1,7 +1,7 @@
 //enter edge conditions for deposit and withdrawal
 //file locking for multiple admins, for user and admin
 //assign unique identifier to users
-
+//for admin modification : take enter as input for non joint second username
 
 //locking socket multithreaded server
 
@@ -144,7 +144,7 @@ int main(void)
 
 				else if(strcmp(a.status,"joint")==0)
 				{
-					//view account details -> read lock
+					//view_account_details view_balance -> read lock
 					//deposit withdrawal ->write lock
 
 					while(1)
@@ -158,7 +158,16 @@ int main(void)
 						switch (t)
 						{
 							case 1://deposit
-								fd1=open("transaction_db",O_WRONLY|O_APPEND);
+								fd1=open("transaction_db",O_RDWR);
+								while(read(fd1,&ta1,sizeof(ta1)))
+								{
+									if(strcmp(ta1.username,a.username)==0 || strcmp(ta1.username2,a.username)==0)
+									{
+										//lock that structure
+										//lseek to beginning of it and then lock
+										
+									}
+								}
 								printf("enter amount to deposit\n");
 								scanf("%d",&amt);
 								strcpy(ta1.username,username);
@@ -315,6 +324,7 @@ int main(void)
 										scanf("%s",a1.username);
 										printf("enter old password\n");
 										scanf("%s",a1.password);
+										if()
 										printf("enter old username2\n");
 										scanf("%s",a1.username2);
 
