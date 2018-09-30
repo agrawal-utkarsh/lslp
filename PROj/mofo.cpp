@@ -1,3 +1,9 @@
+//file locking for multiple admins, for user and admin
+//for admin modification : take enter as input for non joint second username
+
+//socket multithreaded_server
+
+
 #include<unistd.h>
 #include<stdio.h>
 #include<stdlib.h>
@@ -19,88 +25,182 @@ void normaljoint(int t,int id)
 		cout<<"enter the operation to perform\n";
 		cout<<"1.deposit 2.withdraw 3.balance 4.password_change 5.view_detail 6.exit\n";
 		int x;cin>>x;
-		
-		int fd,fd1=-1,amt=0;person p;char pass[50];
+		struct flock lock;int jd;
+		int fd,fd1=-1,amt=0,bowl=0;person p;char pass[50];
 		switch(t)
 		{
 			case 1://normal
 				fd=open("normaldb",O_RDWR);
+				switch(x)
+				{
+					case 1://deposit
+						cout<<"enter amount to deposit\n";
+						cin>>amt;
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						read(fd,&p,sizeof(p));
+						p.balance+=amt;
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						write(fd,&p,sizeof(p));
+					/*	if(fd1!=-1)
+						{
+							lseek(fd1,(id-1)*sizeof(int),SEEK_SET);
+							write(fd1,&p.balance,sizeof(int));
+						}*/
+					break;
+					case 2://withdraw
+						cout<<"enter amount to withdraw\n";
+						cin>>amt;
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						read(fd,&p,sizeof(p));
+						if(p.balance-amt<0)
+							cout<<"not sufficient funds\n";
+						else
+						p.balance-=amt;
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						write(fd,&p,sizeof(p));
+					/*	if(fd1!=-1)
+						{
+							lseek(fd1,(id-1)*sizeof(int),SEEK_SET);
+							write(fd1,&p.balance,sizeof(int));
+						}*/
+					break;
+					case 3://balance
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						read(fd,&p,sizeof(p));
+						cout<<p.balance<<endl;
+					break;
+					case 4://password_change
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						read(fd,&p,sizeof(p));
+						cout<<"enter new password\n";
+						cin>>pass;
+						strcpy(p.password,pass);
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						write(fd,&p,sizeof(p));
+					break;
+					case 5://view_detail
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						read(fd,&p,sizeof(p));
+						cout<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+					break;
+					case 6://exit
+						exit(0);
+					break;
+				}
 			break;
+				
+
+
+
+
 			case 2://joint
 				fd=open("jointdb",O_RDWR);
 				fd1=open("jointdbbal",O_RDWR);
+				switch(x)
+				{
+					case 1://deposit
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						lock.l_type=F_WRLCK;
+						lock.l_whence=SEEK_CUR;
+						lock.l_pid=getpid();
+						lock.l_start=0;
+						lock.l_len=sizeof(p);
+						fcntl(fd,F_SETLKW,&lock);
+						
+						cout<<"enter amount to deposit\n";
+						cin>>amt;
+						read(fd,&p,sizeof(p));
+						p.balance+=amt;
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						write(fd,&p,sizeof(p));
+						if(fd1!=-1)
+						{
+							lseek(fd1,(id-1)*sizeof(int),SEEK_SET);
+							write(fd1,&p.balance,sizeof(int));
+						}
+
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						lock.l_type=F_UNLCK;
+						fcntl(fd,F_SETLKW,&lock);
+
+					break;
+					case 2://withdraw
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						lock.l_type=F_WRLCK;
+						lock.l_whence=SEEK_CUR;
+						lock.l_pid=getpid();
+						lock.l_start=0;
+						lock.l_len=sizeof(p);
+						fcntl(fd,F_SETLKW,&lock);
+						
+						cout<<"enter amount to withdraw\n";
+						cin>>amt;
+						read(fd,&p,sizeof(p));
+						if(p.balance-amt<0)
+							cout<<"not sufficient funds\n";
+						else
+						p.balance-=amt;
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						write(fd,&p,sizeof(p));
+						if(fd1!=-1)
+						{
+							lseek(fd1,(id-1)*sizeof(int),SEEK_SET);
+							write(fd1,&p.balance,sizeof(int));
+						}
+
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						lock.l_type=F_UNLCK;
+						fcntl(fd,F_SETLKW,&lock);
+
+					break;
+					case 3://balance
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						lock.l_type=F_RDLCK;
+						lock.l_whence=SEEK_CUR;
+						lock.l_pid=getpid();
+						lock.l_start=0;
+						lock.l_len=sizeof(p);
+						fcntl(fd,F_SETLKW,&lock);
+						
+						read(fd,&p,sizeof(p));
+						cout<<p.balance<<endl;
+						cin>>jd;
+
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						lock.l_type=F_UNLCK;
+						fcntl(fd,F_SETLKW,&lock);
+					break;
+					case 4://password_change
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						read(fd,&p,sizeof(p));
+						cout<<"enter new password\n";
+						cin>>pass;
+						strcpy(p.password,pass);
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						write(fd,&p,sizeof(p));
+					break;
+					case 5://view_detail
+						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
+						lock.l_type=F_RDLCK;
+						lock.l_whence=SEEK_CUR;
+						lock.l_pid=getpid();
+						lock.l_start=0;
+						lock.l_len=sizeof(p);
+						fcntl(fd,F_SETLKW,&lock);
+
+						read(fd,&p,sizeof(p));
+						cout<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+						cin>>jd;
+
+						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
+						lock.l_type=F_UNLCK;
+						fcntl(fd,F_SETLKW,&lock);
+					break;
+					case 6://exit
+						exit(0);
+					break;
+				}
 			break;		
-		}
-
-		//assuming normal account
-		switch(x)
-		{
-			case 1://deposit
-				cout<<"enter amount to deposit\n";
-				cin>>amt;
-				lseek(fd,(id-1)*sizeof(p),SEEK_SET);
-				read(fd,&p,sizeof(p));
-				p.balance+=amt;
-				lseek(fd,(-1)*sizeof(p),SEEK_CUR);
-				write(fd,&p,sizeof(p));
-			break;
-			case 2://withdraw
-				cout<<"enter amount to withdraw\n";
-				cin>>amt;
-				lseek(fd,(id-1)*sizeof(p),SEEK_SET);
-				read(fd,&p,sizeof(p));
-				if(p.balance-amt<0)
-					cout<<"not sufficient funds\n";
-				else
-				p.balance-=amt;
-				lseek(fd,(-1)*sizeof(p),SEEK_CUR);
-				write(fd,&p,sizeof(p));
-			break;
-			case 3://balance
-				lseek(fd,(id-1)*sizeof(p),SEEK_SET);
-				read(fd,&p,sizeof(p));
-				cout<<p.balance<<endl;
-			break;
-			case 4://password_change
-				lseek(fd,(id-1)*sizeof(p),SEEK_SET);
-				read(fd,&p,sizeof(p));
-				cout<<"enter new password\n";
-				cin>>pass;
-				strcpy(p.password,pass);
-				lseek(fd,(-1)*sizeof(p),SEEK_CUR);
-				write(fd,&p,sizeof(p));
-			break;
-			case 5://view_detail
-				lseek(fd,(id-1)*sizeof(p),SEEK_SET);
-				read(fd,&p,sizeof(p));
-				cout<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
-			break;
-			case 6://exit
-				exit(0);
-			break;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			/*
-			if(fd1!=-1)//normal
-			{
-
-			}
-			else//joint
-			{
-
-			}*/
 		}
 	}
 }

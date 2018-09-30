@@ -3,7 +3,7 @@
 //assign unique identifier to users
 //for admin modification : take enter as input for non joint second username
 
-//locking socket multithreaded server
+//locking socket multithreaded_server
 
 
 #include<stdio.h>//standard i/o
@@ -159,15 +159,19 @@ int main(void)
 						{
 							case 1://deposit
 								fd1=open("transaction_db",O_RDWR);
+
+
 								while(read(fd1,&ta1,sizeof(ta1)))
 								{
 									if(strcmp(ta1.username,a.username)==0 || strcmp(ta1.username2,a.username)==0)
 									{
-										//lock that structure
+										//writelock that structure
 										//lseek to beginning of it and then lock
-										
+
 									}
 								}
+
+
 								printf("enter amount to deposit\n");
 								scanf("%d",&amt);
 								strcpy(ta1.username,username);
