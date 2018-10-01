@@ -1,3 +1,4 @@
+
 //file locking for multiple admins, for user and admin
 //for admin modification : take enter as input for non joint second username
 
@@ -11,6 +12,7 @@
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
+#include<stdlib.h>
 #include<fcntl.h>
 #include<string.h>
 typedef struct person
@@ -20,16 +22,16 @@ typedef struct person
 }person;
 
 int nsd;char buf[80];
-/*		
+		
 void normaljoint(int t,int id)
 {
 	while(1)
 	{
-		cout<<"enter the operation to perform\n";
-		cout<<"1.deposit 2.withdraw 3.balance 4.password_change 5.view_detail 6.exit\n";
-		int x;cin>>x;
-		struct flock lock;int jd;
-		int fd,fd1=-1,amt=0,bowl=0;person p;char pass[50];
+		int x;read(nsd,&x,sizeof(int));
+		printf("%d\n",x );
+		struct flock lock;
+		int jd;
+		int fd,fd1=-1,amt=0,bowl=0,laplap=0;person p;char pass[50];
 		switch(t)
 		{
 			case 1://normal
@@ -37,8 +39,8 @@ void normaljoint(int t,int id)
 				switch(x)
 				{
 					case 1://deposit
-						cout<<"enter amount to deposit\n";
-						cin>>amt;
+						read(nsd,&amt,sizeof(int));
+						printf("%d\n",amt );
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
 						p.balance+=amt;
@@ -46,27 +48,30 @@ void normaljoint(int t,int id)
 						write(fd,&p,sizeof(p));
 					break;
 					case 2://withdraw
-						cout<<"enter amount to withdraw\n";
-						cin>>amt;
+						read(nsd,&amt,sizeof(int));
+						printf("%d\n",amt );
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
 						if(p.balance-amt<0)
-							cout<<"not sufficient funds\n";
+						{
+							laplap=1;
+						}
 						else
 						p.balance-=amt;
+						write(nsd,&laplap,sizeof(int));
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						write(fd,&p,sizeof(p));
 					break;
 					case 3://balance
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
-						cout<<p.balance<<endl;
+						write(nsd,&p.balance,sizeof(int));
 					break;
 					case 4://password_change
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
-						cout<<"enter new password\n";
-						cin>>pass;
+						read(nsd,pass,50);
+						printf("%s\n",pass );
 						strcpy(p.password,pass);
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						write(fd,&p,sizeof(p));
@@ -74,7 +79,7 @@ void normaljoint(int t,int id)
 					case 5://view_detail
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
-						cout<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+						write(nsd,&p,sizeof(p));
 					break;
 					case 6://exit
 						exit(0);
@@ -100,8 +105,8 @@ void normaljoint(int t,int id)
 						lock.l_len=sizeof(p);
 						fcntl(fd,F_SETLKW,&lock);
 						
-						cout<<"enter amount to deposit\n";
-						cin>>amt;
+						read(nsd,&amt,sizeof(int));
+						printf("%d\n",amt );
 						read(fd,&p,sizeof(p));
 						p.balance+=amt;
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
@@ -126,13 +131,13 @@ void normaljoint(int t,int id)
 						lock.l_len=sizeof(p);
 						fcntl(fd,F_SETLKW,&lock);
 						
-						cout<<"enter amount to withdraw\n";
-						cin>>amt;
+						read(nsd,&amt,sizeof(int));
 						read(fd,&p,sizeof(p));
 						if(p.balance-amt<0)
-							cout<<"not sufficient funds\n";
+							laplap=1;
 						else
 						p.balance-=amt;
+						write(nsd,&laplap,sizeof(int));
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						write(fd,&p,sizeof(p));
 						if(fd1!=-1)
@@ -156,8 +161,8 @@ void normaljoint(int t,int id)
 						fcntl(fd,F_SETLKW,&lock);
 						
 						read(fd,&p,sizeof(p));
-						cout<<p.balance<<endl;
-						cin>>jd;
+						write(nsd,&p.balance,sizeof(int));
+						//cin>>jd;//dummy input for pause
 
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						lock.l_type=F_UNLCK;
@@ -166,8 +171,7 @@ void normaljoint(int t,int id)
 					case 4://password_change
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
-						cout<<"enter new password\n";
-						cin>>pass;
+						read(nsd,pass,50);
 						strcpy(p.password,pass);
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						write(fd,&p,sizeof(p));
@@ -182,8 +186,8 @@ void normaljoint(int t,int id)
 						fcntl(fd,F_SETLKW,&lock);
 
 						read(fd,&p,sizeof(p));
-						cout<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
-						cin>>jd;
+						write(nsd,&p,sizeof(p));
+						//cin>>jd;//dummy
 
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						lock.l_type=F_UNLCK;
@@ -196,30 +200,29 @@ void normaljoint(int t,int id)
 			break;		
 		}
 	}
-}*/
+
+}
 void admin()
 {
 	while(1)
 	{
-		write(nsd,"enter the operation to perform\n",32);
-		write(nsd,"1.add 2.delete 3.modify 4.search 5.view_all 6.exit\n",52);
-		int t,fd,fd1=-1,cnt=0;
+		int t,fd,fd1=-1,cnt=0,r=0;
 		read(nsd,&t,sizeof(int));
+		printf("%d\n",t);
 		if(t==6)
 			exit(0);
 		else
 		{
-			write(nsd,"enter account type : 1.normal 2.joint\n",39);
 			int x;
 			read(nsd,&x,sizeof(int));
+			printf("%d\n",x);
+			
 			switch(x)
 			{
 				case 1:
-					write(nsd,"inside normaldb\n",17);
 					fd=open("normaldb",O_RDWR);
 				break;
 				case 2:
-					write(nsd,"inside jointdb\n",16);
 					fd=open("jointdb",O_RDWR);
 					fd1=open("jointdbbal",O_RDWR);
 				break; 
@@ -228,63 +231,65 @@ void admin()
 			switch(t)
 			{
 				case 1://add
-				while(read(fd,&p,sizeof(p)))
-					cnt++;
-				//lseek(fd,0,SEEK_END);
-				write(nsd,"enter name1\n",13);
-				read(nsd,p.name1,50);
-				write(nsd,"enter name2\n",13);
-				read(nsd,p.name2,50);
-				write(nsd,"enter password\n",16);
-				read(nsd,p.password,50);
-				write(nsd,"enter phone\n",13);
-				read(nsd,p.phone,50);
-				//cin>>p.name1>>p.name2>>p.password>>p.phone;
-				p.id=++cnt;
-				p.balance=0;
-				write(fd,&p,sizeof(p));
-				if(fd1!=-1)
-				{
-					lseek(fd1,0,SEEK_END);
-					write(fd1,&p.balance,sizeof(int));
-				}
+					while(read(fd,&p,sizeof(p)))
+						cnt++;
+					read(nsd,p.name1,50);
+					printf("%s\n",p.name1 );
+					read(nsd,p.name2,50);
+					printf("%s\n",p.name2 );
+					read(nsd,p.password,50);
+					printf("%s\n",p.password );
+					read(nsd,p.phone,50);
+					printf("%s\n",p.phone );
+					p.id=++cnt;
+					p.balance=0;
+					write(fd,&p,sizeof(p));
+					if(fd1!=-1)
+					{
+						lseek(fd1,0,SEEK_END);
+						write(fd1,&p.balance,sizeof(int));
+					}
 				break;
 				case 2://delete
-				cout<<"enter username to delete\n";
-				cin>>name;
-				while(read(fd,&p,sizeof(p)))
-				{
-					if(strcmp(p.name1,name)==0||strcmp(p.name2,name)==0)
-					{
-						int id=p.id;
-						p.id=0;
-						strcpy(p.name1,"");
-						strcpy(p.name2,"");
-						p.balance=0;
-						strcpy(p.password,"");
-						strcpy(p.phone,"");
-						lseek(fd,-1*sizeof(p),SEEK_CUR);
-						write(fd,&p,sizeof(p));
-						if(fd1!=-1)
-						{
-							int amt=0;
-							lseek(fd1,(id-1)*sizeof(int),SEEK_SET);
-							write(fd1,&amt,sizeof(int));
-						}
-						break;
-					}
-				}
-				break;
-				case 3://modify
-					cout<<"enter username\n";
-					cin>>name;
+					read(nsd,name,50);
+					printf("%s\n", name);
 					while(read(fd,&p,sizeof(p)))
 					{
 						if(strcmp(p.name1,name)==0||strcmp(p.name2,name)==0)
 						{
-							cout<<"what do you want to modify\n";
-							cout<<"1.name1 2.name2 3.password 4.phone\n";
-							int x;cin>>x;cout<<"enter value\n";cin>>name;
+							int id=p.id;
+							p.id=0;
+							strcpy(p.name1,"");
+							strcpy(p.name2,"");
+							p.balance=0;
+							strcpy(p.password,"");
+							strcpy(p.phone,"");
+							lseek(fd,-1*sizeof(p),SEEK_CUR);
+							write(fd,&p,sizeof(p));
+							if(fd1!=-1)
+							{
+								int amt=0;
+								lseek(fd1,(id-1)*sizeof(int),SEEK_SET);
+								write(fd1,&amt,sizeof(int));
+							}
+							break;
+						}
+					}
+				break;
+				case 3://modify
+					read(nsd,name,50);
+					printf("%s\n",name );
+					while(read(fd,&p,sizeof(p)))
+					{
+						if(strcmp(p.name1,name)==0||strcmp(p.name2,name)==0)
+						{
+							r=1;
+							write(nsd,&r,sizeof(int));
+							
+							read(nsd,&x,sizeof(int));
+							printf("%d\n", x);
+							read(nsd,name,50);
+							printf("%s\n",name );
 							switch(x)
 							{
 								case 1:
@@ -301,26 +306,25 @@ void admin()
 							break;
 						}
 					}
-
 				break;
 				case 4://search
-					cout<<"enter username\n";
-					cin>>name;
+					read(nsd,name,50);
+					printf("%s\n",name);
 					while(read(fd,&p,sizeof(p)))
 					{
 						if(strcmp(p.name1,name)==0||strcmp(p.name2,name)==0)
 						{
-							cout<<"user found\n";
-							flag=true;
+							r=1;
 							break;
 						}
 					}
-					if(!flag)cout<<"user not found\n";
+					write(nsd,&r,sizeof(int));
 				break;
 				case 5:
 					while(read(fd,&p,sizeof(p)))
 					{
-						cout<<p.id<<" "<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+						write(nsd,&p,sizeof(p));
+ 						//cout<<p.id<<" "<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
 					}
 				break;
 			}
@@ -339,7 +343,7 @@ void nextstep(int t,int id)
 		break;
 	}
 }
-int welcome(int t,char username[],char password[])
+void welcome(int t,char username[],char password[])
 {
 	int fd,flag=0;person p;
 	switch(t)
@@ -356,29 +360,28 @@ int welcome(int t,char username[],char password[])
 
 	}
 
-			
-
-
 	while(read(fd,&p,sizeof(p)))
 	{
 		if((strcmp(p.name1,username)==0||(strcmp(p.name2,username)==0))&&strcmp(p.password,password)==0)
 		{
+			flag=1;
 			write(nsd,"login success\n",15);
 			nextstep(t,p.id);
-			flag=1;
 			break;		
 		}
 	}
 	
-	return flag;
+	if(flag==0)
+			write(nsd,"login not success\n",19);
+		
 }
-int main(void)
+int main(int argc,char**argv)
 {
 	int sd=socket(AF_UNIX,SOCK_STREAM,0);
 	struct sockaddr_in servr,client;
 	servr.sin_family=AF_UNIX;
 	servr.sin_addr.s_addr=INADDR_ANY;
-	servr.sin_port=htons(5662);
+	servr.sin_port=htons(atoi(argv[1]));
 	int b=bind(sd,(void*)(&servr),sizeof(servr));
 	printf("bind=%d\n",b);
 	b=listen(sd,5);
@@ -390,26 +393,18 @@ int main(void)
 	while(1)
 	{
 
-		write(nsd,"enter login type : 1.normal 2.joint 3.admin\n",45);
-		//cout<<"enter login type : 1.normal 2.joint 3.admin\n";
 		int t;
 		read(nsd,&t,sizeof(int));
 		printf("%d\n",t);
-		write(nsd,"enter your username\n",21);
 		char username[50],password[50];
-		//cin>>username>>password;
 		read(nsd,username,50);
-		write(nsd,"enter your password\n",21);
+
 		read(nsd,password,50);
 		printf("%s %s\n",username,password);
 		
 
-		int x=welcome(t,username,password);
-		write(nsd,&x,sizeof(int));
-		if(!x)
-		{
-			write(nsd,"user not found\n",16);
-		}
+		welcome(t,username,password);
+		
 
 	}
 }
