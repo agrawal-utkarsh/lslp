@@ -13,26 +13,26 @@ int main(void)
 	int fd=open("normaldb",O_RDONLY);
 	while(read(fd,&p,sizeof(p)))
 	{
-		cout<<p.id<<" "<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+		cout<<p.id<<"\t"<<p.balance<<"\t"<<p.name1<<"\t"<<p.name2<<"\t"<<p.password<<"\t"<<p.phone<<endl;
 	}
 	close(fd);
-	
+	cout<<endl<<endl;
 
 	fd=open("admindb",O_RDONLY);
 	while(read(fd,&p,sizeof(p)))
 	{
-		cout<<p.id<<" "<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+		cout<<p.id<<"\t"<<p.balance<<"\t"<<p.name1<<"\t"<<p.name2<<"\t"<<p.password<<"\t"<<p.phone<<endl;
 	}
 	close(fd);
-	
+	cout<<endl<<endl;
 
 	fd=open("jointdb",O_RDONLY);
 	while(read(fd,&p,sizeof(p)))
 	{
-		cout<<p.id<<" "<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
+		cout<<p.id<<"\t"<<p.balance<<"\t"<<p.name1<<"\t"<<p.name2<<"\t"<<p.password<<"\t"<<p.phone<<endl;
 	}
 	close(fd);
-
+	cout<<endl<<endl;
 	
 	int fd1=open("jointdbbal",O_RDONLY);
 	while(read(fd1,&amt,sizeof(int)))

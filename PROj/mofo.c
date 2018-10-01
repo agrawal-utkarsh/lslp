@@ -50,6 +50,7 @@ void normaljoint(int t,int id)
 						p.balance+=amt;
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						write(fd,&p,sizeof(p));
+						write(nsd,&p,sizeof(person));
 					break;
 					case 2://withdraw
 						read(nsd,&amt,sizeof(int));
@@ -65,6 +66,7 @@ void normaljoint(int t,int id)
 						write(nsd,&laplap,sizeof(int));
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						write(fd,&p,sizeof(p));
+						write(nsd,&p,sizeof(person));
 					break;
 					case 3://balance
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
@@ -107,7 +109,7 @@ void normaljoint(int t,int id)
 						fcntl(fd,F_SETLKW,&lock);
 						
 						read(nsd,&amt,sizeof(int));
-						printf("%d\n",amt );
+						//printf("%d\n",amt );
 						read(fd,&p,sizeof(p));
 						p.balance+=amt;
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
@@ -121,6 +123,7 @@ void normaljoint(int t,int id)
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						lock.l_type=F_UNLCK;
 						fcntl(fd,F_SETLKW,&lock);
+						write(nsd,&p,sizeof(person));
 
 					break;
 					case 2://withdraw
@@ -150,6 +153,7 @@ void normaljoint(int t,int id)
 						lseek(fd,(-1)*sizeof(p),SEEK_CUR);
 						lock.l_type=F_UNLCK;
 						fcntl(fd,F_SETLKW,&lock);
+						write(nsd,&p,sizeof(person));
 
 					break;
 					case 3://balance
@@ -387,25 +391,41 @@ int main(int argc,char**argv)
 	b=listen(sd,5);
 	printf("listen=%d\n",b);
 	int sz=sizeof(client);	
+
 	while(1)
 	{
-	nsd=accept(sd,(void*)(&servr),&sz);
-	printf("accept=%d\n",nsd);
+		nsd=accept(sd,(void*)(&servr),&sz);
 
-		int t;
-		read(nsd,&t,sizeof(int));
-		printf("%d\n",t);
+		if(!fork())
+		{
+			close(sd);
 
-		char username[50],password[50];
-		strcpy(username,"");
-		strcpy(password,"");
-		//printf("%s %s\n",username,password);
+			printf("accept=%d\n",nsd);
 
-		read(nsd,username,50);
-		read(nsd,password,50);
-		printf("%s %s\n",username,password);
+			int t;
+			read(nsd,&t,sizeof(int));
+			printf("%d\n",t);
 
-		welcome(t,username,password);
-		printf("end of main\n");
+			char username[50],password[50];
+			strcpy(username,"");
+			strcpy(password,"");
+			//printf("%s %s\n",username,password);
+
+			read(nsd,username,50);
+			read(nsd,password,50);
+			printf("%s %s\n",username,password);
+
+			welcome(t,username,password);
+			printf("end of main\n");
+
+
+			exit(0);
+
+		}
+	
+		else
+		{
+			close(nsd);	
+		}
 	}
 }

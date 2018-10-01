@@ -169,6 +169,9 @@ int main(int argc,char**argv)
 								int amt;
 								scanf("%d",&amt);
 								write(sd,&amt,sizeof(int));
+								person p1;
+								read(sd,&p1,sizeof(p1));
+								printf("balance=%d\n",p1.balance);
 							}
 							else if(x==2)
 							{
@@ -179,6 +182,9 @@ int main(int argc,char**argv)
 								read(sd,&laplap,sizeof(laplap));
 								if(laplap==1)
 									printf("funds not sufficient\n");
+								person p1;
+								read(sd,&p1,sizeof(p1));
+								printf("balance=%d\n",p1.balance);
 							}
 							else if(x==3)
 							{
@@ -212,6 +218,9 @@ int main(int argc,char**argv)
 								int amt;
 								scanf("%d",&amt);
 								write(sd,&amt,sizeof(int));
+								person p1;
+								read(sd,&p1,sizeof(p1));
+								printf("balance=%d\n",p1.balance);
 							}
 							else if(x==2)
 							{
@@ -222,6 +231,9 @@ int main(int argc,char**argv)
 								read(sd,&laplap,sizeof(laplap));
 								if(laplap==1)
 									printf("funds not sufficient\n");
+								person p1;
+								read(sd,&p1,sizeof(p1));
+								printf("balance=%d\n",p1.balance);
 							}
 							else if(x==3)
 							{
