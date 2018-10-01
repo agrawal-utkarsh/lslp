@@ -1,9 +1,5 @@
 
 //file locking for multiple admins, for user and admin
-//for admin modification : take enter as input for non joint second username
-
-//socket multithreaded_server
-
 
 #include<unistd.h>
 #include<stdio.h>
