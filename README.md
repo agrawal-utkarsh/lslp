@@ -12,7 +12,7 @@ c. The application should possess password-protected administrative access; thus
 d. Three types of login should be created: normal user, joint account user; administrator;
 e. Once you login as administrator, you should be able to add, delete, modify, search for a specific account details.
 f. Once the customer connect to the server, you should get login and password prompt.
-After successful login, you should get menu for example:
+After successful login, you should get menu for example: 
 Do you want to:
  Deposit
  Withdraw
