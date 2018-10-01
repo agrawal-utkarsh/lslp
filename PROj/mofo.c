@@ -27,7 +27,11 @@ void normaljoint(int t,int id)
 {
 	while(1)
 	{
-		int x;read(nsd,&x,sizeof(int));
+		int x;
+		read(nsd,&x,sizeof(int));
+		printf("%d\n",x );
+		if(x==6)return;
+
 		printf("%d\n",x );
 		struct flock lock;
 		int jd;
@@ -80,9 +84,6 @@ void normaljoint(int t,int id)
 						lseek(fd,(id-1)*sizeof(p),SEEK_SET);
 						read(fd,&p,sizeof(p));
 						write(nsd,&p,sizeof(p));
-					break;
-					case 6://exit
-						exit(0);
 					break;
 				}
 			break;
@@ -193,9 +194,6 @@ void normaljoint(int t,int id)
 						lock.l_type=F_UNLCK;
 						fcntl(fd,F_SETLKW,&lock);
 					break;
-					case 6://exit
-						exit(0);
-					break;
 				}
 			break;		
 		}
@@ -206,13 +204,12 @@ void admin()
 {
 	while(1)
 	{
-		int t,fd,fd1=-1,cnt=0,r=0;
-		read(nsd,&t,sizeof(int));
-		printf("%d\n",t);
-		if(t==6)
-			exit(0);
-		else
-		{
+			int t,fd,fd1=-1,cnt=0,r=0;
+			read(nsd,&t,sizeof(int));
+			printf("%d\n",t);
+
+			if(t==5)return;
+
 			int x;
 			read(nsd,&x,sizeof(int));
 			printf("%d\n",x);
@@ -320,15 +317,14 @@ void admin()
 					}
 					write(nsd,&r,sizeof(int));
 				break;
-				case 5:
+				/*case 5:
 					while(read(fd,&p,sizeof(p)))
 					{
 						write(nsd,&p,sizeof(p));
  						//cout<<p.id<<" "<<p.balance<<" "<<p.name1<<" "<<p.name2<<" "<<p.password<<" "<<p.phone<<endl;
 					}
-				break;
+				break;*/
 			}
-		}
 	}
 }
 void nextstep(int t,int id)
@@ -342,6 +338,7 @@ void nextstep(int t,int id)
 		normaljoint(t,id);
 		break;
 	}
+	printf("end of nextstep\n");
 }
 void welcome(int t,char username[],char password[])
 {
@@ -373,6 +370,9 @@ void welcome(int t,char username[],char password[])
 	
 	if(flag==0)
 			write(nsd,"login not success\n",19);
+
+
+		printf("end of welcome\n");
 		
 }
 int main(int argc,char**argv)
@@ -386,25 +386,26 @@ int main(int argc,char**argv)
 	printf("bind=%d\n",b);
 	b=listen(sd,5);
 	printf("listen=%d\n",b);
-	int sz=sizeof(client);
-	nsd=accept(sd,(void*)(&servr),&sz);
-	printf("accept=%d\n",nsd);
-
+	int sz=sizeof(client);	
 	while(1)
 	{
+	nsd=accept(sd,(void*)(&servr),&sz);
+	printf("accept=%d\n",nsd);
 
 		int t;
 		read(nsd,&t,sizeof(int));
 		printf("%d\n",t);
-		char username[50],password[50];
-		read(nsd,username,50);
 
+		char username[50],password[50];
+		strcpy(username,"");
+		strcpy(password,"");
+		//printf("%s %s\n",username,password);
+
+		read(nsd,username,50);
 		read(nsd,password,50);
 		printf("%s %s\n",username,password);
-		
 
 		welcome(t,username,password);
-		
-
+		printf("end of main\n");
 	}
 }

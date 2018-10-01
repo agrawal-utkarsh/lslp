@@ -21,45 +21,50 @@ int main(int argc,char**argv)
 	servr.sin_port=htons(atoi(argv[1]));
 	int c=connect(sd,(void*)(&servr),sizeof(servr));
 	printf("connect=%d\n",c);
-	char buf[80];
+
 
 	if(c==0)
 	{
 		while(1)
 		{
+			char buf[50];
 			printf("enter login type : 1.normal 2.joint 3.admin\n");
 			int t;
 			scanf("%d",&t);
 			write(sd,&t,sizeof(int));
+
 			printf("enter your username\n");
+			strcpy(buf,"");
 			scanf("%s",buf);
-			write(sd,buf,strlen(buf));
+			write(sd,buf,strlen(buf)+1);
+
 			printf("enter your password\n");
+			strcpy(buf,"");
 			scanf("%s",buf);
-			write(sd,buf,strlen(buf));
+			write(sd,buf,strlen(buf)+1);
 
 			//user found or not found result
 			
 			read(sd,buf,sizeof(buf));
 			printf("%s\n",buf);
 			if(strcmp(buf,"login not success\n")==0)
-				exit(0);
-
+				return 0; 
 			if(t==3)
 			{
 				while(1)
 				{
 					printf("enter the operation to perform\n");
-					printf("1.add 2.delete 3.modify 4.search 5.view_all 6.exit\n");
+					printf("1.add 2.delete 3.modify 4.search 5.exit\n");
 
 										
-					int tt;				//operation type
+					int tt;				
 					scanf("%d",&tt);
 					write(sd,&tt,sizeof(int));
 
-					if(tt==6)exit(0);
+					if(tt==5)exit(0);
 					else
 					{
+
 						printf("enter account type : 1.normal 2.joint\n");
 						int x;
 						scanf("%d",&x);
@@ -132,116 +137,113 @@ int main(int argc,char**argv)
 							else
 								printf("user not found\n");
 						}
-						else if(tt==5)
+						/*else if(tt==5)
 						{
 							person p;
 							read(sd,&p,sizeof(p));
 
 							printf("%d %d %s %s %s %s\n",p.id,p.balance,p.name1,p.name2,p.password,p.phone);
-						}
-
+						}*/
 					}
 				}
 			}
-			else//see in nextstep function
+			else
 			{
 				while(1)
 				{
 					printf("enter the operation to perform\n");
 					printf("1.deposit 2.withdraw 3.balance 4.password_change 5.view_detail 6.exit\n");
 					int x;scanf("%d",&x);
+
 					write(sd,&x,sizeof(int));
-					if(t==1)
+					if(x==6){exit(0);}
+					else
 					{
+						if(t==1)
+						{
 
-						//normal
-						if(x==1)
-						{
-							printf("enter amt to deposit\n");
-							int amt;
-							scanf("%d",&amt);
-							write(sd,&amt,sizeof(int));
-						}
-						else if(x==2)
-						{
-							printf("enter amt to withdraw\n");
-							int amt,laplap;
-							scanf("%d",&amt);
-							write(sd,&amt,sizeof(int));
-							read(sd,&laplap,sizeof(laplap));
-							if(laplap==1)
-								printf("funds not sufficient\n");
-						}
-						else if(x==3)
-						{
-							int ba;
-							read(sd,&ba,sizeof(int));
-							printf("balance=%d\n", ba);
-						}
-						else if(x==4)
-						{
-							printf("enter new password\n");
-							char pas[50];strcpy(pas,"");
-							scanf("%s",pas);
-							write(sd,pas,strlen(pas)+1);
-						}
-						else if(x==5)
-						{
-							person p;
-							read(sd,&p,sizeof(person));
-							printf("%d %s %s %s %s\n",p.balance,p.name1,p.name2,p.password,p.phone);
-						}
-						else if(x==6)
-						{
-							exit(0);
-						}
+							//normal
+							if(x==1)
+							{
+								printf("enter amt to deposit\n");
+								int amt;
+								scanf("%d",&amt);
+								write(sd,&amt,sizeof(int));
+							}
+							else if(x==2)
+							{
+								printf("enter amt to withdraw\n");
+								int amt,laplap;
+								scanf("%d",&amt);
+								write(sd,&amt,sizeof(int));
+								read(sd,&laplap,sizeof(laplap));
+								if(laplap==1)
+									printf("funds not sufficient\n");
+							}
+							else if(x==3)
+							{
+								int ba;
+								read(sd,&ba,sizeof(int));
+								printf("balance=%d\n", ba);
+							}
+							else if(x==4)
+							{
+								printf("enter new password\n");
+								char pas[50];strcpy(pas,"");
+								scanf("%s",pas);
+								write(sd,pas,strlen(pas)+1);
+							}
+							else if(x==5)
+							{
+								person p;
+								read(sd,&p,sizeof(person));
+								printf("%d %s %s %s %s\n",p.balance,p.name1,p.name2,p.password,p.phone);
+							}
+							
 
-					}
-					else if(t==2) 
-					{
-						//joint
+						}
+						else if(t==2) 
+						{
+							//joint
 
-						if(x==1)
-						{
-							printf("enter amt to deposit\n");
-							int amt;
-							scanf("%d",&amt);
-							write(sd,&amt,sizeof(int));
-						}
-						else if(x==2)
-						{
-							printf("enter amt to withdraw\n");
-							int amt,laplap;
-							scanf("%d",&amt);
-							write(sd,&amt,sizeof(int));
-							read(sd,&laplap,sizeof(laplap));
-							if(laplap==1)
-								printf("funds not sufficient\n");
-						}
-						else if(x==3)
-						{
-							int ba;
-							read(sd,&ba,sizeof(int));
-							printf("balance=%d\n", ba);
-						}
-						else if(x==4)
-						{
-							printf("enter new password\n");
-							char pas[50];strcpy(pas,"");
-							scanf("%s",pas);
-							write(sd,pas,strlen(pas)+1);
-						}
-						else if(x==5)
-						{
-							person p;
-							read(sd,&p,sizeof(person));
-							printf("%d %s %s %s %s\n",p.balance,p.name1,p.name2,p.password,p.phone);
-						}
-						else if(x==6)
-						{
-							exit(0);
-						}
+							if(x==1)
+							{
+								printf("enter amt to deposit\n");
+								int amt;
+								scanf("%d",&amt);
+								write(sd,&amt,sizeof(int));
+							}
+							else if(x==2)
+							{
+								printf("enter amt to withdraw\n");
+								int amt,laplap;
+								scanf("%d",&amt);
+								write(sd,&amt,sizeof(int));
+								read(sd,&laplap,sizeof(laplap));
+								if(laplap==1)
+									printf("funds not sufficient\n");
+							}
+							else if(x==3)
+							{
+								int ba;
+								read(sd,&ba,sizeof(int));
+								printf("balance=%d\n", ba);
+							}
+							else if(x==4)
+							{
+								printf("enter new password\n");
+								char pas[50];strcpy(pas,"");
+								scanf("%s",pas);
+								write(sd,pas,strlen(pas)+1);
+							}
+							else if(x==5)
+							{
+								person p;
+								read(sd,&p,sizeof(person));
+								printf("%d %s %s %s %s\n",p.balance,p.name1,p.name2,p.password,p.phone);
+							}
 
+						}
 					}
 				}
 			}
